@@ -8,12 +8,14 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "db:up": "docker compose up -d db",
-    "db:down": "docker compose down",
-    "db:reset": "docker compose down -v && docker compose up -d db",
-    "db:migrate": "node scripts/db-migrate.mjs"
+    "db:start": "supabase start -x edge-runtime,logflare,vector,imgproxy,supavisor",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:types": "supabase gen types typescript --local > packages/db/src/types.gen.ts",
+    "db:test": "supabase test db"
   },
   "devDependencies": {
+    "supabase": "^2.121.0",
     "turbo": "^2"
   }
 }

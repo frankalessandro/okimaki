@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro'
+import MiReserva from '../components/MiReserva'
+---
+
+<Base titulo="Mi reserva · Okimaki369" descripcion="Consulta el estado de tu reserva en Okimaki369.">
+  <div class="mb-6 text-center">
+    <h1 class="text-3xl text-ivory-50">Mi reserva</h1>
+    <p class="mt-2 text-sm text-ivory-300">Con tu código y tu apellido o celular.</p>
+  </div>
+  <MiReserva client:load />
+</Base>

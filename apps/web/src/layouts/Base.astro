@@ -1,0 +1,60 @@
+---
+import '../styles/global.css'
+
+interface Props {
+  titulo: string
+  descripcion: string
+}
+const { titulo, descripcion } = Astro.props
+
+const restaurante = {
+  '@context': 'https://schema.org',
+  '@type': 'Restaurant',
+  name: 'Okimaki369',
+  description: descripcion,
+  servesCuisine: 'Fusión asiática',
+  address: { '@type': 'PostalAddress', streetAddress: 'Av 3AN 23D 11, San Vicente', addressLocality: 'Cali', addressCountry: 'CO' },
+}
+---
+
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b0b0c" />
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="application/ld+json" set:html={JSON.stringify(restaurante)} />
+  </head>
+  <body>
+    <header class="border-b border-gold-500/20">
+      <div class="mx-auto flex max-w-xl items-center justify-between px-4 py-4">
+        <a href="/" class="flex flex-col leading-none">
+          <span class="font-display text-xl tracking-[0.35em] text-ivory-50">OKI MAKI</span>
+          <span class="mt-1 text-[10px] tracking-[0.6em] text-gold-500">3 6 9</span>
+        </a>
+        <nav class="flex gap-4 text-sm text-ivory-300">
+          <a href="/" class="hover:text-gold-300">Reservar</a>
+          <a href="/mi-reserva" class="hover:text-gold-300">Mi reserva</a>
+        </nav>
+      </div>
+    </header>
+    <main class="mx-auto max-w-xl px-4 pb-16 pt-6">
+      <slot />
+    </main>
+    <footer class="border-t border-gold-500/20 px-4 py-6 text-center text-xs text-ivory-500">
+      Sushi flotante · Av 3AN 23D 11, San Vicente, Cali
+    </footer>
+  </body>
+</html>
