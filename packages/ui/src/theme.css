@@ -9,6 +9,7 @@
   --color-carbon-700: #26262c;
   --color-carbon-600: #3a3a42;
 
+  --color-gold-200: #f1e3b8;
   --color-gold-300: #e6cf8e;
   --color-gold-400: #d6b766;
   --color-gold-500: #c9a24b;
@@ -16,6 +17,11 @@
 
   --color-lacquer-500: #b3261e;
   --color-lacquer-600: #8f1d17;
+
+  /* Acentos de experiencia (una experiencia = un color): sakura, matcha y añil. */
+  --color-sakura-300: #eeb4c3;
+  --color-matcha-400: #8fbf9a;
+  --color-ai-400: #8c9ce0;
 
   --color-ivory-50: #fbf8f1;
   --color-ivory-100: #f2ebdd;

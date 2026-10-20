@@ -9,7 +9,7 @@ export const NuevaReserva = z.object({
   apellido: z.string().trim().min(1, 'Escribe tu apellido').max(80),
   celular: z
     .string()
-    .refine((v) => normalizarCelular(v) !== null, 'Celular inválido: 10 dígitos que empiecen por 3'),
+    .refine((v) => normalizarCelular(v) !== null, 'Revisa el celular: en Colombia son 10 dígitos que empiezan por 3.'),
   personas: z.number().int().min(1, 'Mínimo 1 persona'),
   esCumple: z.boolean(),
   alergias: z.string().trim().max(300).optional(),
@@ -21,7 +21,11 @@ export const Tanda = z.object({
   slotId: z.uuid(),
   fecha: z.string(),
   hora: z.string(),
+  servicioId: z.uuid(),
   servicio: z.string(),
+  frase: z.string(),
+  menu: z.string(),
+  incluye: z.array(z.string()),
   precio: z.number().int(),
   duracionMin: z.number().int(),
   cupo: z.number().int(),
@@ -39,7 +43,8 @@ export const DatosPago = z.object({
 
 /** Respuesta de `create_reservation`, `report_payment` y `get_my_reservation`. */
 export const Reserva = z.object({
-  code: z.string(),
+  /** El código de la reserva (K3QX9P2M, clave aleatoria de 8): lo ven el cliente y el panel, y basta para consultar la reserva y reportar el pago. El consecutivo es interno y no sale de la base. */
+  public_code: z.string(),
   status: EstadoReserva,
   first_name: z.string(),
   last_name: z.string(),

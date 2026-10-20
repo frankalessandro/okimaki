@@ -26,7 +26,7 @@ export async function cancelarReserva(db: SupabaseClient, reservaId: string, mot
 
 /** Fila de la bandeja: columnas snake_case de Postgres con alias camelCase en el select. */
 export const SELECT_RESERVA_PANEL = `
-  id, codigo:code, estado:status, nombre:first_name, apellido:last_name,
+  id, codigo:access_key, estado:status, nombre:first_name, apellido:last_name,
   personas:party_size, total, venceEn:hold_expires_at, reportadaEn:reported_at,
   esCumple:is_birthday, alergias:allergies, motivoCancelacion:cancel_reason, creadaEn:created_at,
   tanda:service_slots(fecha:slot_date, hora:start_time),

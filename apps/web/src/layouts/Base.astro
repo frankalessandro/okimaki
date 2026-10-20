@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css'
+import { DIRECCION, INSTAGRAM_URL, MAPA_URL } from '../lib/restaurante'
 
 interface Props {
   titulo: string
@@ -12,49 +13,224 @@ const restaurante = {
   '@type': 'Restaurant',
   name: 'Okimaki369',
   description: descripcion,
-  servesCuisine: 'Fusión asiática',
+  servesCuisine: ['Sushi', 'Fusión asiática'],
+  acceptsReservations: true,
+  sameAs: [INSTAGRAM_URL],
+  hasMap: MAPA_URL,
   address: { '@type': 'PostalAddress', streetAddress: 'Av 3AN 23D 11, San Vicente', addressLocality: 'Cali', addressCountry: 'CO' },
 }
+
+// Yuji Syuku (pincel) se pide solo con los caracteres que usamos: pesa unos pocos KB.
+const pincel = encodeURIComponent('おきまきよやく369寿食時名払仮報済来終止欠予約')
+const fuentes =
+  'https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap'
+const fuentePincel = `https://fonts.googleapis.com/css2?family=Yuji+Syuku&text=${pincel}&display=swap`
+
+const enlaces = [
+  { href: '/reservar', texto: 'Reservar', kanji: '予' },
+  { href: '/mi-reserva', texto: 'Mi reserva', kanji: '約' },
+]
 ---
 
 <!doctype html>
 <html lang="es-CO">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#0b0b0c" />
     <title>{titulo}</title>
     <meta name="description" content={descripcion} />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:site_name" content="Okimaki369" />
     <meta property="og:title" content={titulo} />
     <meta property="og:description" content={descripcion} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href={fuentes} rel="stylesheet" />
+    <link href={fuentePincel} rel="stylesheet" />
     <script type="application/ld+json" set:html={JSON.stringify(restaurante)} />
   </head>
-  <body>
-    <header class="border-b border-gold-500/20">
-      <div class="mx-auto flex max-w-xl items-center justify-between px-4 py-4">
-        <a href="/" class="flex flex-col leading-none">
-          <span class="font-display text-xl tracking-[0.35em] text-ivory-50">OKI MAKI</span>
-          <span class="mt-1 text-[10px] tracking-[0.6em] text-gold-500">3 6 9</span>
+  <body class="washi">
+    <a href="#contenido" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[70] focus:rounded-xl focus:bg-gold-400 focus:px-4 focus:py-2 focus:text-carbon-950">
+      Saltar al contenido
+    </a>
+
+    <header class="relative z-50">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+        <a href="/" class="group flex items-center gap-3" aria-label="Okimaki 369, inicio">
+          <span class="relative grid size-11 place-items-center rounded-full bg-carbon-950 ring-1 ring-gold-500/50 transition duration-500 group-hover:ring-gold-300">
+            <svg viewBox="0 0 64 64" class="size-9 text-gold-300 transition-transform duration-700 group-hover:rotate-[200deg]" aria-hidden="true">
+              <path d="M44.5 17.5C39 13.6 30.8 13 24.6 16.4 17.3 20.4 14 29 16.4 37c2.4 8.1 10.6 13.4 19 12.4 7.6-.9 13.8-6.9 14.6-14.4.4-3.6-.4-7.2-2.2-10.2" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+            </svg>
+            <span class="absolute top-2 right-2 size-1.5 rounded-full bg-lacquer-500"></span>
+          </span>
+          <span class="flex flex-col leading-none">
+            <span class="font-display text-[1.05rem] font-bold tracking-[0.32em] text-ivory-50">OKI MAKI</span>
+            <span class="mt-1.5 flex items-center gap-1.5 text-[0.55rem] tracking-[0.55em] text-gold-400">
+              <span class="h-px w-3 bg-gold-500/60"></span>3 6 9<span class="h-px w-3 bg-gold-500/60"></span>
+            </span>
+          </span>
         </a>
-        <nav class="flex gap-4 text-sm text-ivory-300">
-          <a href="/" class="hover:text-gold-300">Reservar</a>
-          <a href="/mi-reserva" class="hover:text-gold-300">Mi reserva</a>
+
+        <nav class="hidden items-center gap-1 lg:flex" aria-label="Principal">
+          {
+            enlaces.map((e) => (
+              <a href={e.href} class="enlace-esc group relative inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm text-ivory-300 transition hover:text-ivory-50">
+                <span class="font-pincel text-gold-500/70 transition group-hover:text-gold-300" aria-hidden="true">{e.kanji}</span>
+                {e.texto}
+              </a>
+            ))
+          }
+          <a href={INSTAGRAM_URL} target="_blank" rel="noopener" aria-label="Instagram de Okimaki369" class="ml-2 grid size-11 place-items-center rounded-full border border-gold-500/25 text-gold-200 transition hover:border-gold-400/60">
+            <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"></rect><circle cx="12" cy="12" r="3.9"></circle><circle cx="17.2" cy="6.8" r=".9" fill="currentColor" stroke="none"></circle></svg>
+          </a>
         </nav>
+
+        <button
+          type="button"
+          id="menu-boton"
+          aria-expanded="false"
+          aria-controls="menu"
+          aria-label="Abrir menú"
+          class="menu-boton relative grid size-12 lg:hidden place-items-center rounded-full border border-gold-500/25 bg-carbon-900/60 backdrop-blur transition hover:border-gold-400/60"
+        >
+          <span class="linea l1"></span>
+          <span class="linea l2"></span>
+        </button>
       </div>
     </header>
-    <main class="mx-auto max-w-xl px-4 pb-16 pt-6">
+
+    <div id="menu" class="menu fixed inset-0 z-[45] flex flex-col bg-carbon-950/95 backdrop-blur-2xl" hidden>
+      <span aria-hidden="true" class="pointer-events-none absolute -right-6 bottom-10 font-pincel text-[9rem] leading-none text-gold-500/[0.06] [writing-mode:vertical-rl]">おきまき</span>
+      <nav class="mx-auto mt-28 w-full max-w-xl px-6" aria-label="Principal">
+        <ul class="space-y-2">
+          {
+            enlaces.map((e, i) => (
+              <li class="menu-item" style={`--i:${i}`}>
+                <a href={e.href} class="group flex min-h-16 items-center gap-5 border-b border-carbon-800 py-3">
+                  <span class="font-pincel text-2xl text-gold-500/70 transition group-hover:text-gold-300">{e.kanji}</span>
+                  <span class="font-display text-[2rem] text-ivory-50 transition-transform duration-500 group-hover:translate-x-2">{e.texto}</span>
+                  <svg viewBox="0 0 24 24" class="ml-auto size-6 -translate-x-2 text-gold-400 opacity-0 transition duration-500 group-hover:translate-x-0 group-hover:opacity-100" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 12h15.5M13.5 6l6 6-6 6"></path>
+                  </svg>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <div class="menu-item mx-auto mt-auto w-full max-w-xl space-y-3 px-6 pb-10 text-sm text-ivory-300" style="--i:4">
+        <a href={INSTAGRAM_URL} target="_blank" rel="noopener" class="flex min-h-11 items-center gap-3 hover:text-gold-200">
+          <svg viewBox="0 0 24 24" class="size-5 text-gold-400" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"></rect><circle cx="12" cy="12" r="3.9"></circle><circle cx="17.2" cy="6.8" r=".9" fill="currentColor" stroke="none"></circle></svg>
+          @okimaki369
+        </a>
+        <a href={MAPA_URL} target="_blank" rel="noopener" class="flex min-h-11 items-center gap-3 hover:text-gold-200">
+          <svg viewBox="0 0 24 24" class="size-5 text-gold-400" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
+          {DIRECCION}
+        </a>
+      </div>
+    </div>
+
+    <main id="contenido">
       <slot />
     </main>
-    <footer class="border-t border-gold-500/20 px-4 py-6 text-center text-xs text-ivory-500">
-      Sushi flotante · Av 3AN 23D 11, San Vicente, Cali
-    </footer>
+
+    <style>
+      .enlace-esc::after {
+        content: '';
+        position: absolute;
+        inset-inline: 1rem;
+        bottom: 0.55rem;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--color-gold-300), transparent);
+        transform: scaleX(0);
+        transition: transform 0.5s var(--ease-suave);
+      }
+      .enlace-esc:hover::after {
+        transform: scaleX(1);
+      }
+      .menu-boton .linea {
+        position: absolute;
+        height: 1.5px;
+        width: 20px;
+        border-radius: 2px;
+        background: var(--color-gold-200);
+        transition:
+          transform 0.5s var(--ease-rebote),
+          width 0.4s var(--ease-suave);
+      }
+      .menu-boton .l1 {
+        transform: translateY(-4px);
+      }
+      .menu-boton .l2 {
+        width: 12px;
+        transform: translate(4px, 4px);
+      }
+      .menu-boton[aria-expanded='true'] .l1 {
+        transform: rotate(45deg);
+      }
+      .menu-boton[aria-expanded='true'] .l2 {
+        width: 20px;
+        transform: rotate(-45deg);
+      }
+      .menu {
+        clip-path: circle(0 at calc(100% - 2.6rem) 2.6rem);
+        transition: clip-path 0.7s var(--ease-suave);
+      }
+      .menu[data-abierto] {
+        clip-path: circle(150% at calc(100% - 2.6rem) 2.6rem);
+      }
+      .menu .menu-item {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.6s var(--ease-suave),
+          transform 0.6s var(--ease-suave);
+        transition-delay: calc(0.15s + var(--i) * 70ms);
+      }
+      .menu[data-abierto] .menu-item {
+        opacity: 1;
+        transform: none;
+      }
+    </style>
+
+    <script>
+      const boton = document.getElementById('menu-boton')!
+      const menu = document.getElementById('menu')!
+
+      function cerrar() {
+        delete menu.dataset.abierto
+        boton.setAttribute('aria-expanded', 'false')
+        boton.setAttribute('aria-label', 'Abrir menú')
+        document.body.style.overflow = ''
+        setTimeout(() => {
+          if (!menu.dataset.abierto) menu.hidden = true
+        }, 700)
+      }
+
+      function abrir() {
+        menu.hidden = false
+        requestAnimationFrame(() => {
+          menu.dataset.abierto = ''
+        })
+        boton.setAttribute('aria-expanded', 'true')
+        boton.setAttribute('aria-label', 'Cerrar menú')
+        document.body.style.overflow = 'hidden'
+        menu.querySelector('a')?.focus({ preventScroll: true })
+      }
+
+      boton.addEventListener('click', () => (menu.dataset.abierto !== undefined ? cerrar() : abrir()))
+      menu.addEventListener('click', (e) => {
+        if ((e.target as HTMLElement).closest('a')) cerrar()
+      })
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && menu.dataset.abierto !== undefined) {
+          cerrar()
+          boton.focus()
+        }
+      })
+    </script>
   </body>
 </html>

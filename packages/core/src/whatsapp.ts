@@ -6,7 +6,7 @@ import type { Reserva } from './reserva'
 export function mensajeWhatsapp(plantilla: string, r: Reserva): string {
   const valores: Record<string, string> = {
     nombre: r.first_name,
-    codigo: r.code,
+    codigo: r.public_code,
     fecha: fechaLarga(r.slot_date),
     hora: horaCorta(r.start_time),
     personas: String(r.party_size),

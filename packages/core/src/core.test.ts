@@ -8,6 +8,22 @@ describe('normalizarCelular', () => {
     expect(normalizarCelular('+57 300-123-4567')).toBe('+573001234567')
     expect(normalizarCelular('573001234567')).toBe('+573001234567')
   })
+  it('acepta celulares de otros países con indicativo', () => {
+    expect(normalizarCelular('+34 612 345 678')).toBe('+34612345678')
+    expect(normalizarCelular('+1 (305) 555-0142')).toBe('+13055550142')
+    expect(normalizarCelular('+52 55 1234 5678')).toBe('+525512345678')
+  })
+
+  it('con +57 sigue exigiendo un celular colombiano', () => {
+    expect(normalizarCelular('+57 300 123 4567')).toBe('+573001234567')
+    expect(normalizarCelular('+57 1234567')).toBeNull()
+  })
+
+  it('rechaza internacionales demasiado cortos o largos', () => {
+    expect(normalizarCelular('+34 123')).toBeNull()
+    expect(normalizarCelular('+1234567890123456')).toBeNull()
+  })
+
   it('rechaza lo que no es celular', () => {
     expect(normalizarCelular('2345678')).toBeNull()
     expect(normalizarCelular('1001234567')).toBeNull()
@@ -35,13 +51,13 @@ describe('formatearCOP', () => {
 
 describe('whatsapp', () => {
   const reserva = {
-    code: 'OKIMAKI-000001', first_name: 'Ana', party_size: 2, total: 30000,
+    public_code: 'K3QX9P2M', first_name: 'Ana', party_size: 2, total: 30000,
     slot_date: '2026-10-24', start_time: '15:00:00',
   } as Reserva
 
   it('rellena la plantilla y deja intactas las marcas desconocidas', () => {
     const msg = mensajeWhatsapp('{nombre} {codigo} {personas} {x}', reserva)
-    expect(msg).toBe('Ana OKIMAKI-000001 2 {x}')
+    expect(msg).toBe('Ana K3QX9P2M 2 {x}')
   })
   it('codifica el mensaje en el enlace', () => {
     expect(enlaceWhatsapp('+57 300 000 0000', 'hola mundo')).toBe('https://wa.me/573000000000?text=hola%20mundo')

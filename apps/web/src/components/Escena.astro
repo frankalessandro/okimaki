@@ -1,0 +1,100 @@
+---
+/**
+ * Fondo de las pantallas de entrada (inicio y Mi reserva): luz de linternas, pétalos, kana vertical con sello
+ * y el río con el yakatabune. Solo CSS. Va dentro de una sección `relative overflow-hidden`.
+ */
+import Yakatabune from './Yakatabune.astro'
+
+interface Props {
+  /** Kana vertical a la derecha (p. ej. "おきまき"). */
+  kana: string
+  /** Texto pequeño bajo el kana (p. ej. "369"). */
+  sub?: string
+  /** El río con el yakatabune; se apaga donde ya flota otra cosa abajo (la barca de /reservar). */
+  rio?: boolean
+  /** Solo muestra el kana en pantallas anchas, para que no choque con controles arriba a la derecha. */
+  kanaSoloEscritorio?: boolean
+}
+const { kana, sub, rio = true, kanaSoloEscritorio = false } = Astro.props
+
+// Pétalos de sakura: posición, retraso, duración y deriva fijos para que el HTML sea estable.
+const petalos = [
+  [8, 0, 11, 40],
+  [22, 3.5, 13, -30],
+  [38, 7, 12, 60],
+  [55, 1.5, 14, -50],
+  [70, 5, 11.5, 35],
+  [84, 9, 13.5, -25],
+  [93, 2.5, 12.5, -60],
+]
+---
+
+<div aria-hidden="true" class="pointer-events-none absolute inset-0">
+  <span class="linterna absolute top-[10%] -left-24 size-72 rounded-full bg-gold-500/25 blur-[90px]"></span>
+  <span class="linterna absolute top-[35%] -right-28 size-80 rounded-full bg-lacquer-500/20 blur-[100px]" style="animation-delay:-2s"></span>
+</div>
+
+<div aria-hidden="true" class="pointer-events-none absolute inset-0 overflow-hidden">
+  {
+    petalos.map(([izq, retraso, dur, deriva]) => (
+      <span class="petalo absolute -top-6 block" style={`left:${izq}%;animation-delay:${retraso}s;animation-duration:${dur}s;--deriva:${deriva}px`}>
+        <svg viewBox="0 0 20 20" class="size-3.5 text-sakura-300/80">
+          <path d="M10 1c3 3 5.5 6.5 4.5 10.5-.7 2.8-2.6 4.6-4.5 7.5-1.9-2.9-3.8-4.7-4.5-7.5C4.5 7.5 7 4 10 1Z" fill="currentColor" />
+        </svg>
+      </span>
+    ))
+  }
+</div>
+
+<div
+  aria-hidden="true"
+  class:list={[
+    'pointer-events-none absolute top-4 right-4 flex-col items-center gap-2 sm:right-[calc(50%-17rem)]',
+    kanaSoloEscritorio ? 'hidden lg:right-6 lg:flex' : 'flex',
+  ]}
+>
+  <span class="kana font-pincel text-[1.45rem] leading-[1.15] text-ivory-100/80 [writing-mode:vertical-rl] sm:text-[1.7rem]">{kana}</span>
+  {sub && <span class="kana font-display text-xs tracking-[0.3em] text-gold-400 [writing-mode:vertical-rl]" style="animation-delay:.5s">{sub}</span>}
+  <span class="sello mt-1 grid size-8 place-items-center rounded-md bg-lacquer-500 font-pincel text-lg text-ivory-50 shadow-[0_0_24px_-4px_var(--color-lacquer-500)]">寿</span>
+</div>
+
+{
+  rio && (
+    <div aria-hidden="true" class="pointer-events-none absolute inset-x-0 bottom-0 h-36">
+      <div class="barca absolute -bottom-3 left-0 w-52 sm:-bottom-5 sm:w-72">
+        <Yakatabune />
+      </div>
+      <svg viewBox="0 0 1200 60" preserveAspectRatio="none" class="ola absolute bottom-5 h-9 w-[200%] text-gold-500/25" style="animation-duration:14s">
+        <path d="M0 30 Q 75 10 150 30 T 300 30 T 450 30 T 600 30 T 750 30 T 900 30 T 1050 30 T 1200 30" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+      </svg>
+      <svg viewBox="0 0 1200 60" preserveAspectRatio="none" class="ola absolute bottom-0 h-10 w-[200%] text-gold-500/15" style="animation-duration:20s;animation-direction:reverse">
+        <path d="M0 30 Q 100 5 200 30 T 400 30 T 600 30 T 800 30 T 1000 30 T 1200 30 V60 H0Z" fill="currentColor"></path>
+      </svg>
+    </div>
+  )
+}
+
+<style>
+  .kana {
+    animation: aparecer 1.4s var(--ease-suave) 0.9s backwards;
+  }
+  .sello {
+    animation: estampar 0.7s var(--ease-rebote) 1.9s both;
+  }
+  .linterna {
+    animation: resplandor 5s ease-in-out infinite;
+  }
+  .petalo {
+    animation-name: petalo;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+  }
+  .ola {
+    animation: ola linear infinite;
+  }
+  /* Arranca a mitad de camino para que se vea desde el primer segundo. */
+  .barca {
+    animation: navegar 48s linear -16s infinite;
+  }
+</style>

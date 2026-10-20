@@ -1,12 +1,60 @@
 ---
 import Base from '../layouts/Base.astro'
+import Escena from '../components/Escena.astro'
 import MiReserva from '../components/MiReserva'
 ---
 
-<Base titulo="Mi reserva · Okimaki369" descripcion="Consulta el estado de tu reserva en Okimaki369.">
-  <div class="mb-6 text-center">
-    <h1 class="text-3xl text-ivory-50">Mi reserva</h1>
-    <p class="mt-2 text-sm text-ivory-300">Con tu código y tu apellido o celular.</p>
-  </div>
-  <MiReserva client:load />
+<Base titulo="Mi reserva · Okimaki369" descripcion="Consulta el estado de tu reserva en Okimaki369 con tu código de reserva.">
+  <!-- Misma escena que el inicio: una pantalla con el ensō, y el río al fondo. Crece si el pase es largo. -->
+  <section class="relative flex min-h-[calc(100svh-5rem)] flex-col overflow-hidden" aria-labelledby="titulo-mi-reserva">
+    <Escena kana="よやく" sub="369" />
+
+    <div class="relative mx-auto flex w-full max-w-5xl flex-1 flex-col items-center px-4 pt-2 pb-40 sm:px-6">
+      <div class="relative grid place-items-center">
+        <svg viewBox="0 0 100 100" class="enso-mi absolute size-[11rem] sm:size-[13rem]" aria-hidden="true">
+          <defs>
+            <linearGradient id="oro-mi" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="var(--color-gold-200)"></stop>
+              <stop offset=".5" stop-color="var(--color-gold-400)"></stop>
+              <stop offset="1" stop-color="var(--color-gold-600)"></stop>
+            </linearGradient>
+          </defs>
+          <path
+            d="M78 22C69.5 13.5 55.4 10 43 13.6 25.4 18.7 13.4 36.4 15.8 54.6c2.4 18.4 19.5 32 38 30.9 17.6-1 31.7-15.5 32.4-33.1.3-7.3-1.8-14.4-5.8-20.3"
+            fill="none"
+            stroke="url(#oro-mi)"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            pathLength="1"></path>
+        </svg>
+        <div class="relative py-10 text-center">
+          <p class="entrada text-[0.6rem] font-bold tracking-[0.45em] text-gold-400 uppercase" style="--d:.2s">Tu pase</p>
+          <h1 id="titulo-mi-reserva" class="entrada mt-3 font-display text-[2.4rem] leading-none font-bold text-ivory-50 sm:text-[2.9rem]" style="--d:.45s">
+            Mi reserva
+          </h1>
+          <p aria-hidden="true" class="entrada mt-2 font-pincel text-xl text-gold-300" style="--d:.7s">約</p>
+        </div>
+      </div>
+
+      <p class="entrada mt-1 max-w-sm text-center text-sm leading-relaxed text-ivory-300" style="--d:1s">
+        Consulta el estado, termina tu pago o revisa los detalles de tu visita.
+      </p>
+
+      <div class="entrada mt-8 w-full" style="--d:1.2s">
+        <MiReserva client:load />
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .enso-mi path {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: trazo 2s var(--ease-suave) 0.15s forwards;
+      filter: drop-shadow(0 0 12px color-mix(in oklab, var(--color-gold-400) 45%, transparent));
+    }
+    .entrada {
+      animation: aparecer 1s var(--ease-suave) var(--d) backwards;
+    }
+  </style>
 </Base>

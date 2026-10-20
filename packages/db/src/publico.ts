@@ -26,7 +26,11 @@ const FilaTanda = z.object({
   slot_id: z.uuid(),
   slot_date: z.string(),
   start_time: z.string(),
+  service_type_id: z.uuid(),
   service_name: z.string(),
+  tagline: z.string(),
+  menu: z.string(),
+  highlights: z.array(z.string()),
   price: z.number().int(),
   duration_minutes: z.number().int(),
   capacity: z.number().int(),
@@ -40,7 +44,11 @@ export async function obtenerDisponibilidad(db: SupabaseClient, desde: string, h
     slotId: f.slot_id,
     fecha: f.slot_date,
     hora: f.start_time,
+    servicioId: f.service_type_id,
     servicio: f.service_name,
+    frase: f.tagline,
+    menu: f.menu,
+    incluye: f.highlights,
     precio: f.price,
     duracionMin: f.duration_minutes,
     cupo: f.capacity,
@@ -63,15 +71,16 @@ export async function crearReserva(db: SupabaseClient, r: NuevaReserva): Promise
   return Reserva.parse(data)
 }
 
-export async function reportarPago(db: SupabaseClient, codigo: string): Promise<Reserva> {
-  const { data, error } = await db.rpc('report_payment', { p_code: codigo })
+/** Exige el código público completo, no el consecutivo. */
+export async function reportarPago(db: SupabaseClient, codigoPublico: string): Promise<Reserva> {
+  const { data, error } = await db.rpc('report_payment', { p_code: codigoPublico })
   lanzar(error)
   return Reserva.parse(data)
 }
 
-/** Código + apellido o celular. Nunca solo el celular. */
-export async function obtenerMiReserva(db: SupabaseClient, codigo: string, identificador: string): Promise<Reserva> {
-  const { data, error } = await db.rpc('get_my_reservation', { p_code: codigo, p_identifier: identificador })
+/** Con el código público (consecutivo + clave aleatoria); el consecutivo solo no abre nada. */
+export async function obtenerMiReserva(db: SupabaseClient, codigoPublico: string): Promise<Reserva> {
+  const { data, error } = await db.rpc('get_my_reservation', { p_code: codigoPublico })
   lanzar(error)
   return Reserva.parse(data)
 }

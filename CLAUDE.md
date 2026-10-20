@@ -67,15 +67,15 @@ supabase db push      # aplica migraciones pendientes a producción
 - **Fechas:** todo "hoy" o fecha del negocio se calcula en `America/Bogota` con el helper de `packages/core` (`fechaLocalISO`). Nunca `new Date().toISOString().slice(0, 10)`: después de las 7 pm en Colombia eso da el día siguiente. En la base, `timestamptz` siempre; `date` solo para la fecha de servicio.
 - **Paginar toda lectura por rango que alimente una cifra** (helper `paginar`): Supabase corta en 1.000 filas y el total se trunca en silencio.
 - **Dinero en pesos enteros** (`integer`/`bigint`), nunca `float`. En pantalla con separador de miles es-CO; en formularios, `CurrencyInput`.
-- El consecutivo `OKIMAKI-000001` lo genera Postgres (secuencia) al crear la reserva; el frontend nunca lo calcula. Las reservas migradas conservan su código viejo (`AAA-025`…).
+- El consecutivo `OKIMAKI-000001` lo genera Postgres (secuencia) al crear la reserva; el frontend nunca lo calcula. **El consecutivo es de consumo interno** (antifraude: alerta ante huecos, y bitácora): no sale en ninguna RPC, pantalla, tabla del panel ni mensaje. Cliente, panel y WhatsApp usan solo el código de la reserva (`access_key`, 8 caracteres: `K3QX9P2M`).
 
 ### Sitio cliente (`apps/web`)
 
 - La mayoría de clientes llega desde el navegador interno de Instagram/TikTok, en celular y con datos lentos. **Astro manda HTML; solo se hidrata lo interactivo** (`client:load` en el flujo de reserva, `client:visible` en lo demás). Revisar el peso del JS en cada build.
 - Flujo de reserva en una sola columna, mobile-first: calendario → tanda → datos → pago. Sin pasos ocultos ni modales en el camino crítico salvo el QR.
-- **Pantalla de pago (M4):** monto exacto, contador de 1 hora, modal con el QR, botón "Copiar llave" (Clipboard API con respaldo de selección manual si falla dentro del navegador de Instagram) y botón "Enviar comprobante por WhatsApp": abre `https://wa.me/<numero>?text=<encodeURIComponent(mensaje)>` y **en el mismo clic** llama `report_payment(code)`. Si la RPC falla, igual se abre WhatsApp y se reintenta en segundo plano.
+- **Pantalla de pago (M4):** monto exacto, contador de 1 hora, modal con el QR, botón "Copiar llave" (Clipboard API con respaldo de selección manual si falla dentro del navegador de Instagram) y botón "Enviar comprobante por WhatsApp": abre `https://wa.me/<numero>?text=<encodeURIComponent(mensaje)>` y **en el mismo clic** llama `report_payment(código público)`. Si la RPC falla, igual se abre WhatsApp y se reintenta en segundo plano.
 - La plantilla del mensaje sale de `settings.whatsapp_template` (editable en M1); `packages/core` la rellena. Nunca escribir el texto del mensaje en un componente.
-- **Mi reserva (M5):** código + apellido o celular. Nunca mostrar una reserva con solo el celular.
+- **Mi reserva (M5):** solo con el código público `K3QX9P2M` (clave aleatoria de 8, migraciones 0004 y 0005; el formato largo anterior `OKIMAKI-000007-K3QX9P` se sigue aceptando). El consecutivo solo no abre la reserva ni permite reportar el pago. El dispositivo recuerda las reservas (localStorage, solo el código público). Nunca mostrar una reserva con solo el celular.
 - Captcha invisible (Cloudflare Turnstile) antes de `create_reservation`, validado en Edge Function.
 - SEO local básico: título, descripción, Open Graph y datos estructurados del restaurante.
 
@@ -159,7 +159,7 @@ Cuentas individuales por persona, sin cuentas compartidas; el dueño invita usua
 15. Quien no se presenta pierde el pago; no se bloquea al cliente.
 16. Cambio de fecha según términos y condiciones. Cancelación: hasta 24 h antes con devolución o cambio de fecha; con menos de 24 h no hay devolución. **Política provisional, se ajusta con el dueño** — dejarla en `settings`, no en código.
 17. El cumpleañero puede ser cualquiera del grupo; se verifica con documento al llegar.
-18. Consultar o cambiar una reserva exige código + apellido o celular.
+18. Consultar una reserva exige el código público completo (clave aleatoria de 8 caracteres). *Cambió el 2026-10-19: antes era código + apellido o celular; luego consecutivo + clave de 6.*
 
 Valores configurables por el admin (no escribirlos en código): plazo de pago (60 min), límite de pago reportado (180 min), ventana de reserva (90 días), anticipación mínima, máximo de reservas por día (3), horas de la política de cancelación (24).
 

@@ -73,14 +73,14 @@ isOneToOne: false
                   ]
                 },"reservations": {
                   Row: {
-                    "allergies": string | null,"cancel_reason": string | null,"cancelled_at": string | null,"cancelled_by": string | null,"code": string,"created_at": string,"customer_id": string,"first_name": string,"hold_expires_at": string | null,"id": string,"internal_note": string | null,"is_birthday": boolean,"last_name": string,"party_size": number,"price_per_person": number,"reported_at": string | null,"slot_id": string,"status": Database["public"]['Enums']["reservation_status"],"total": number
+                    "access_key": string,"allergies": string | null,"cancel_reason": string | null,"cancelled_at": string | null,"cancelled_by": string | null,"code": string,"created_at": string,"customer_id": string,"first_name": string,"hold_expires_at": string | null,"id": string,"internal_note": string | null,"is_birthday": boolean,"last_name": string,"party_size": number,"price_per_person": number,"reported_at": string | null,"slot_id": string,"status": Database["public"]['Enums']["reservation_status"],"total": number,"codigo_publico": string | null
                   }
-                  ComputedFields: never
+                  ComputedFields: "codigo_publico"
                   Insert: {
-                    "allergies"?: string | null,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"code"?: string,"created_at"?: string,"customer_id": string,"first_name": string,"hold_expires_at"?: string | null,"id"?: string,"internal_note"?: string | null,"is_birthday"?: boolean,"last_name": string,"party_size": number,"price_per_person": number,"reported_at"?: string | null,"slot_id": string,"status"?: Database["public"]['Enums']["reservation_status"],"total": number
+                    "access_key"?: string,"allergies"?: string | null,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"code"?: string,"created_at"?: string,"customer_id": string,"first_name": string,"hold_expires_at"?: string | null,"id"?: string,"internal_note"?: string | null,"is_birthday"?: boolean,"last_name": string,"party_size": number,"price_per_person": number,"reported_at"?: string | null,"slot_id": string,"status"?: Database["public"]['Enums']["reservation_status"],"total": number
                   }
                   Update: {
-                    "allergies"?: string | null,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"code"?: string,"created_at"?: string,"customer_id"?: string,"first_name"?: string,"hold_expires_at"?: string | null,"id"?: string,"internal_note"?: string | null,"is_birthday"?: boolean,"last_name"?: string,"party_size"?: number,"price_per_person"?: number,"reported_at"?: string | null,"slot_id"?: string,"status"?: Database["public"]['Enums']["reservation_status"],"total"?: number
+                    "access_key"?: string,"allergies"?: string | null,"cancel_reason"?: string | null,"cancelled_at"?: string | null,"cancelled_by"?: string | null,"code"?: string,"created_at"?: string,"customer_id"?: string,"first_name"?: string,"hold_expires_at"?: string | null,"id"?: string,"internal_note"?: string | null,"is_birthday"?: boolean,"last_name"?: string,"party_size"?: number,"price_per_person"?: number,"reported_at"?: string | null,"slot_id"?: string,"status"?: Database["public"]['Enums']["reservation_status"],"total"?: number
                   }
                   Relationships: [
                     {
@@ -125,14 +125,14 @@ isOneToOne: false
                   ]
                 },"service_types": {
                   Row: {
-                    "active": boolean,"capacity": number,"duration_minutes": number,"id": string,"name": string,"price": number,"slot_times": (string)[],"weekdays": (number)[]
+                    "active": boolean,"capacity": number,"duration_minutes": number,"highlights": (string)[],"id": string,"menu": string,"name": string,"price": number,"slot_times": (string)[],"tagline": string,"weekdays": (number)[]
                   }
                   ComputedFields: never
                   Insert: {
-                    "active"?: boolean,"capacity": number,"duration_minutes": number,"id"?: string,"name": string,"price": number,"slot_times": (string)[],"weekdays"?: (number)[]
+                    "active"?: boolean,"capacity": number,"duration_minutes": number,"highlights"?: (string)[],"id"?: string,"menu"?: string,"name": string,"price": number,"slot_times": (string)[],"tagline"?: string,"weekdays"?: (number)[]
                   }
                   Update: {
-                    "active"?: boolean,"capacity"?: number,"duration_minutes"?: number,"id"?: string,"name"?: string,"price"?: number,"slot_times"?: (string)[],"weekdays"?: (number)[]
+                    "active"?: boolean,"capacity"?: number,"duration_minutes"?: number,"highlights"?: (string)[],"id"?: string,"menu"?: string,"name"?: string,"price"?: number,"slot_times"?: (string)[],"tagline"?: string,"weekdays"?: (number)[]
                   }
                   Relationships: [
                     
@@ -188,6 +188,12 @@ isOneToOne: false
             "cancel_reservation":
 { Args: { "p_reason": string,"p_reservation_id": string }; Returns: Json
                            },
+"clave_acceso":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"codigo_publico":
+{ Args: { "r": Omit<Database["public"]['Tables']["reservations"]['Row'], Database["public"]['Tables']["reservations"]['ComputedFields']> }; Returns: string
+                           },
 "create_reservation":
 { Args: { "p_allergies"?: string,"p_first_name": string,"p_is_birthday"?: boolean,"p_last_name": string,"p_party_size": number,"p_phone": string,"p_slot_id": string,"p_terms_accepted"?: boolean }; Returns: Json
                            },
@@ -202,11 +208,11 @@ isOneToOne: false
                            },
 "get_availability":
 { Args: { "p_from": string,"p_to": string }; Returns: {
-              "capacity": number,"duration_minutes": number,"price": number,"remaining": number,"service_name": string,"slot_date": string,"slot_id": string,"start_time": string
+              "capacity": number,"duration_minutes": number,"highlights": (string)[],"menu": string,"price": number,"remaining": number,"service_name": string,"service_type_id": string,"slot_date": string,"slot_id": string,"start_time": string,"tagline": string
             }[]
                            },
 "get_my_reservation":
-{ Args: { "p_code": string,"p_identifier": string }; Returns: Json
+{ Args: { "p_code": string }; Returns: Json
                            },
 "get_public_settings":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -222,6 +228,9 @@ isOneToOne: false
                            },
 "report_payment":
 { Args: { "p_code": string }; Returns: Json
+                           },
+"reserva_por_codigo":
+{ Args: { "p_codigo": string }; Returns: string
                            },
 "reservation_payload":
 { Args: { "p_id": string }; Returns: Json

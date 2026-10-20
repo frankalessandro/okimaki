@@ -1,66 +1,174 @@
-import { etiquetaEstado, fechaLarga, formatearCOP, horaCorta, type Reserva } from '@okimaki/core'
+import type { EstadoReserva, Reserva } from '@okimaki/core'
 import { obtenerMiReserva } from '@okimaki/db'
-import { useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { olvidarReserva, recordarReserva, reservasRecordadas } from '../lib/consulta'
 import { db } from '../lib/db'
+import { Espera } from './Espera'
+import { IconoAlerta, IconoBuscar, IconoFlecha, IconoRecargar } from './iconos'
 import { PantallaPago } from './PantallaPago'
-import { Boton, Campo, Tarjeta } from './ui'
+import { Pase } from './Pase'
+import { CodigoReserva, codigoCompleto, codigoDe, limpiarCodigo } from './CodigoReserva'
+import { Aviso, Boton } from './ui'
+
+const FINALES: Partial<Record<EstadoReserva, string>> = {
+  expired: 'El plazo de pago terminó y el cupo se liberó. Puedes reservar de nuevo cuando quieras.',
+  cancelled: 'Esta reserva fue cancelada. Si tienes dudas, escríbenos por WhatsApp con tu código.',
+  no_show: 'Esta reserva quedó registrada como “No se presentó”.',
+}
 
 export default function MiReserva() {
   const [codigo, setCodigo] = useState('')
-  const [identificador, setIdentificador] = useState('')
   const [reserva, setReserva] = useState<Reserva | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [cargando, setCargando] = useState(false)
+  const [recordadas, setRecordadas] = useState<string[]>([])
+  // Mientras se abre sola la reserva recordada, no se muestra el formulario (evita un parpadeo).
+  const [abriendo, setAbriendo] = useState(true)
 
-  async function buscar() {
+  // La reserva más reciente de este dispositivo se abre sola.
+  useEffect(() => {
+    const lista = reservasRecordadas()
+    setRecordadas(lista)
+    if (lista[0]) {
+      setCodigo(limpiarCodigo(lista[0]))
+      void consultar(lista[0]).finally(() => setAbriendo(false))
+    } else setAbriendo(false)
+  }, [])
+
+  async function buscar(e?: FormEvent) {
+    e?.preventDefault()
+    if (codigoCompleto(codigo)) await consultar(codigoDe(codigo))
+  }
+
+  async function consultar(cod: string) {
     setError(null)
     setCargando(true)
     try {
-      setReserva(await obtenerMiReserva(db, codigo, identificador))
-    } catch (e) {
+      const r = await obtenerMiReserva(db, cod.trim())
+      setReserva(r)
+      recordarReserva(r.public_code)
+      setRecordadas(reservasRecordadas())
+    } catch (err) {
       setReserva(null)
-      setError((e as Error).message)
+      setError((err as Error).message)
     } finally {
       setCargando(false)
     }
   }
 
+  function olvidar(r: Reserva) {
+    olvidarReserva(r.public_code)
+    setRecordadas(reservasRecordadas())
+    setReserva(null)
+    setCodigo('')
+  }
+
+  if (abriendo) {
+    return (
+      <Espera texto="Abriendo tu reserva" className="py-12" />
+    )
+  }
+
   if (reserva) {
     const pendiente = reserva.status === 'held' || reserva.status === 'payment_reported'
+    const final = FINALES[reserva.status]
     return (
-      <div className="space-y-4">
-        <Tarjeta className="text-center">
-          <p className="text-sm text-ivory-300">Estado</p>
-          <p className="font-display text-2xl text-gold-300">{etiquetaEstado[reserva.status]}</p>
-        </Tarjeta>
+      <div className="space-y-6">
+        {final && (
+          <div className="mx-auto max-w-xl">
+            <Aviso tono="info" icono={<IconoAlerta />}>
+              {final}
+            </Aviso>
+          </div>
+        )}
         {pendiente ? (
           <PantallaPago reserva={reserva} onCambio={setReserva} />
         ) : (
-          <Tarjeta className="space-y-1 text-center text-ivory-100">
-            <p className="font-display text-xl tracking-widest text-gold-300">{reserva.code}</p>
-            <p>
-              {fechaLarga(reserva.slot_date)} · {horaCorta(reserva.start_time)}
-            </p>
-            <p>
-              {reserva.party_size} {reserva.party_size === 1 ? 'persona' : 'personas'} · {formatearCOP(reserva.total)}
-            </p>
-          </Tarjeta>
+          <div className="mx-auto max-w-xl">
+            <Pase reserva={reserva} />
+          </div>
         )}
-        <Boton variante="secundario" onClick={() => setReserva(null)}>
-          Consultar otra reserva
-        </Boton>
+        {/* Mientras falta confirmar el pago tiene sentido refrescar; ya pagada, no. */}
+        {pendiente && (
+          <div className="mx-auto max-w-xl">
+            <Boton variante="secundario" onClick={() => void consultar(reserva.public_code)} cargando={cargando} icono={<IconoRecargar tam={18} />}>
+              Actualizar estado
+            </Boton>
+          </div>
+        )}
+        <div className="mx-auto flex max-w-xl flex-col items-center gap-1 pt-2 text-center">
+          <a
+            href="/reservar"
+            className="group inline-flex min-h-11 items-center gap-2 font-display text-lg text-gold-200 underline decoration-gold-500/40 underline-offset-[6px] transition hover:text-gold-300 hover:decoration-gold-300"
+          >
+            Agenda otra experiencia
+            <IconoFlecha tam={18} className="transition-transform duration-300 group-hover:translate-x-1" />
+          </a>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 text-[0.8rem] text-ivory-500">
+            <button
+              type="button"
+              onClick={() => {
+                setReserva(null)
+                setCodigo('')
+              }}
+              className="min-h-10 underline-offset-4 transition hover:text-ivory-300 hover:underline"
+            >
+              Consultar otro código
+            </button>
+            <button type="button" onClick={() => olvidar(reserva)} className="min-h-10 underline-offset-4 transition hover:text-ivory-300 hover:underline">
+              Olvidar en este dispositivo
+            </button>
+          </div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-3">
-      <Campo etiqueta="Código de reserva" placeholder="OKIMAKI-000123" autoCapitalize="characters" value={codigo} onChange={(e) => setCodigo(e.target.value)} />
-      <Campo etiqueta="Apellido o celular" value={identificador} onChange={(e) => setIdentificador(e.target.value)} />
-      {error && <p className="rounded-xl border border-danger-500/40 p-3 text-sm text-danger-500">{error}</p>}
-      <Boton onClick={buscar} disabled={cargando || !codigo || !identificador}>
-        {cargando ? 'Buscando…' : 'Consultar'}
-      </Boton>
+    <div className="mx-auto max-w-md space-y-4">
+      <form onSubmit={buscar} className="marco aparecer space-y-4 p-5 sm:p-6" noValidate>
+        <div>
+          <CodigoReserva
+            valor={codigo}
+            onCambio={(v) => {
+              setCodigo(v)
+              setError(null)
+            }}
+            onCompleto={(v) => void consultar(codigoDe(v))}
+            error={error !== null}
+            disabled={cargando}
+          />
+          <p className="mt-2 text-[0.8rem] text-ivory-500">Los 8 caracteres de tu pase y del mensaje de tu reserva. Puedes pegarlo completo.</p>
+        </div>
+        {error && <Aviso icono={<IconoAlerta />}>{error}</Aviso>}
+        <Boton type="submit" cargando={cargando} disabled={!codigoCompleto(codigo)} icono={<IconoBuscar tam={20} />}>
+          {cargando ? 'Buscando…' : 'Consultar'}
+        </Boton>
+      </form>
+
+      {recordadas.length > 0 && (
+        <section className="aparecer px-1" aria-labelledby="titulo-recordadas">
+          <h2 id="titulo-recordadas" className="mb-2 text-center text-[0.66rem] font-bold tracking-[0.25em] text-ivory-500 uppercase">
+            En este dispositivo
+          </h2>
+          <ul className="flex flex-wrap justify-center gap-2">
+            {recordadas.map((c) => (
+              <li key={c}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCodigo(limpiarCodigo(c))
+                    void consultar(c)
+                  }}
+                  className="min-h-10 rounded-full border border-gold-500/30 bg-carbon-900/70 px-3.5 font-mono text-[0.78rem] tracking-wide text-gold-200 transition hover:border-gold-400/60 hover:bg-carbon-800"
+                >
+                  {c}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   )
 }
